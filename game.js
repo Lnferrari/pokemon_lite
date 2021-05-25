@@ -61,10 +61,11 @@ class Pokemon {
         // selects randomly one skill from the skills that the Pokemon has learnt
         let skill = randomPicker(this.skills)
         if (this.health > 0) {
+            // if the pokemon has enough magic to perform the attack it'll do it, otherwise it'll not be able to perform it and a message will be printed explaining why.
             if (this.magic >= skill.magic) {
                 // if randomPicker get true from the array[true,false,true] the pokemon can perform the attack, otherwise it's gonna missed it
-                // increases/decreases the damage caused by his attack depending on his and his opponent's type.
                 if (randomPicker(possibilityToAttack)) {
+                    // increases, decreases or does't the damage caused by his attack depending on his and his opponent's type.
                     if ((this.type === 'water' && target.type === 'fire') || (this.type === 'electric' && target.type === 'water') || (this.type === 'fire' && target.type === 'grass') || (this.type === 'grass' && target.type === 'water')) {
                         target.health -= skill.damage * 1.4;
                         this.magic -= skill.magic * 0.6;
@@ -101,6 +102,7 @@ class Pokemon {
     recover() {
         this.health = 100;
         this.magic = 100;
+        // if the Pokemon has a lvl greater than 1, it'll have a greater amount of life and magic (+25 for each level)
         if (this.level > 1) {
             this.health += ((this.level - 1) * 25)
             this.magic += ((this.level - 1) * 25)
@@ -120,6 +122,7 @@ class AttackSkill {
         AttackSkill.addSkill(this)
     }
 
+    // A method to push each instance of the class into an array (pokemonSkills)
     static addSkill(skill) {
         pokemonSkills.push(skill)
     }
@@ -129,31 +132,39 @@ class AttackSkill {
 // ---------------Functions---------------
 randomPicker = arr => arr[Math.floor(Math.random() * arr.length)];
 
+// passing Pokemon's array and Skills array to the function each pokemon will learn the skills of its type.
 pokemonGym = (participants, skills) => skills.forEach(skill => participants.forEach(pokemon => { if(skill.type === pokemon.type) { pokemon.learnAttackSkill(skill) }}));
 
-
+// Recursive function to execute battles between 2 pokemon.
+// The function takes an array as an argument from which it will remove the first and last pokemon from the list each time the function is called
 startPokemonBattle = participants => {
+    // base case
     if (participants.length === 0) {
         return
     }
-    
+    // remove the first and last pokemon from the list each time the function is called
     let opponents = [participants.shift(), participants.pop()]
-    
+    // Choosing randomly who will be the first to attack
     let whoStarts = randomPicker(opponents);
     let whoNotStarts = opponents[0] !== whoStarts ? opponents[0] : opponents[1];
-    console.log(`\n\n* * *  Let's see which will be the next battle  * * *\n* * * * * *  LET'S GET READY TO RUMBLE!!  * * * * * *\n\n=-=-=-=-=-=-=  ${whoStarts.name}  Vs  ${whoNotStarts.name}  =-=-=-=-=-=-= \n\n`);
+    console.log(`\n\n\t * * *  Let's see which will be the next battle  * * *\n\t * * * * * *  LET'S GET READY TO RUMBLE!!  * * * * * *\n\n\t =-=-=-=-=-=-=-=  ${whoStarts.name}  Vs  ${whoNotStarts.name}  =-=-=-=-=-=-=-= \n\n`);
     console.log('\nStarting the battle.......\n+ + + + + FIGHT! + + + + +\n');
-    
+    // As long as both pokemon have more than 0 health points continues the iteration for them to perform their attacks
     for (let i = 0; whoStarts.health > 0 && whoNotStarts.health > 0; i++) {
         whoStarts.attack(whoNotStarts)
         whoNotStarts.attack(whoStarts)        
     }
+    // once one of the opponents loses all his health points...
     if (whoStarts.health <= 0) {
+        // calls the getter to find out how many experience points (according to the remaining health points) the pokemon will earn
         const earnedExp = whoNotStarts.expPoints
+        // ..and then it is added to the pokemon with the addExp() method.
         whoNotStarts.addExp(earnedExp)
         whoNotStarts.showStatus()
         // console.log(`\n${whoNotStarts.name} advances to the next round!\n`);
+        // resets the values of health and magic
         whoNotStarts.recover()
+        // pushes the winner of the battle into the winners array
         winners.push(whoNotStarts)
         return startPokemonBattle(participants)
     } else if (whoNotStarts.health <= 0) {
@@ -167,16 +178,17 @@ startPokemonBattle = participants => {
     }
 }
 
-
+// function that initialises the tournament
 startTournament = () => {
     let participants = [];
     
     // const howManyPokemon = prompt('How many Pokemon do you want to participate in the tournament (2-4-8-16)? ')
-    const howManyPokemon = 8
+    const howManyPokemon = 16
     if (howManyPokemon % 2 !== 0) {
         howManyPokemon += 1
     }
     console.log('selecting the participants...\n');
+    // chooses randomly he participants of the tournament according to the desired number of them
     for (let i = 1; i <= howManyPokemon; i++) {
         let participant = randomPicker(listOfPokemon)
         if (!participants.includes(participant)) {
@@ -187,26 +199,33 @@ startTournament = () => {
         }
     }
     console.log('\nThe Pokemon are training and learning new skills to be ready for the tournament.\nThey will be ready in a while...\n\n');
+
+    // each pokemon of the participants array will learn the skills of its type.
     pokemonGym(participants, pokemonSkills)
-    console.log('\n\t#####################################################\n\t##\t\t\t\t\t\t   ##\n\t##   WELCOME TO THE POKEMON MASTER CHAMPIONSHIP!   ##\n\t##\t\t\t\t\t\t   ##\n\t#####################################################\n\n');
+
+    console.log('\n\n\t#####################################################\n\t##\t\t\t\t\t\t   ##\n\t##   WELCOME TO THE POKEMON MASTER CHAMPIONSHIP!   ##\n\t##\t\t\t\t\t\t   ##\n\t#####################################################\n\n');
     
+    console.log(`\n\n\t+ + + + + + + + + + + + + + + + + + + + + + + + + + + +\n\t+ + + + + + + + + +   FIRST ROUND   + + + + + + + + + +\n\t+ + + + + + + + + + + + + + + + + + + + + + + + + + + +`);
+    // starts the recursive function in order to get the winners
     startPokemonBattle(participants)
-    
+    // depending on the number of winners (after the first round) the corresponding case will be executed.
     while (winners.length > 1) {
         let winners2 = [...winners]
         winners = []
         switch (winners2.length) {
             case 8:
+                console.log(`\n\n\t+ + + + + + + + + + + + + + + + + + + + + + + + + + + +\n\t+ + + + + + + + +   QUARTER  FINALS   + + + + + + + + +\n\t+ + + + + + + + + + + + + + + + + + + + + + + + + + + +`);
                 startPokemonBattle(winners2)
                 break;
             case 4:
+                console.log(`\n\n\t+ + + + + + + + + + + + + + + + + + + + + + + + + + + +\n\t+ + + + + + + + + +   SEMI-FINALS   + + + + + + + + + +\n\t+ + + + + + + + + + + + + + + + + + + + + + + + + + + +`);
                 startPokemonBattle(winners2)
                 break;
             case 2:
-                console.log(`\n\t  ############################\n\t  ##\t\t\t    ##\n\t  ##\t   WELCOME TO\t    ##\n\t  ##    THE FINAL BATTLE    ##\n\t  ##\t\t\t    ##\n\t  ############################\n`);
+                console.log(`\n\n\t+ + + + + + + + + + + + + + + + + + + + + + + + + + + +\n\t+ + + + + +   WELCOME TO THE FINAL BATTLE   + + + + + +\n\t+ + + + + + + + + + + + + + + + + + + + + + + + + + + +`);
                 startPokemonBattle(winners2)
         }
-    }  
+    }
     console.log(`\n\t#########################################\n\t#\t\t\t\t\t#\n\t#\t${winners[0].name} is the CHAMPION!\t#\n\t#\t\t\t\t\t#\n\t#########################################`);
 }
 
@@ -258,4 +277,4 @@ let hydroCannon = new AttackSkill ("hydro cannon", 50, 45, 'water');
 
 
 
-// startTournament()
+startTournament()
