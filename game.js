@@ -31,11 +31,11 @@ class Pokemon {
         let expAverage = 100 + ((this.level - 1) * 25);
         let oneThird = expAverage / 3
         if (this.health > oneThird*2) {
-            return 40
+            return 45
         } else if (this.health > oneThird) {
-            return 30
+            return 35
         } else {
-            return 15
+            return 25
         }
     }
 
