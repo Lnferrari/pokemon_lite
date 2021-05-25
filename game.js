@@ -5,6 +5,9 @@ let pokemonSkills = []
 // Array that by randomly picking one of its elements will determine whether the pokémon can perform its attack or will miss it.
 const possibilityToAttack = [true, false, true]
 
+// array to store the winners of each round
+let winners = [];
+
 // ---------------Pokemon class---------------
 class Pokemon {
     constructor(name, type){
@@ -126,34 +129,87 @@ class AttackSkill {
 // ---------------Functions---------------
 randomPicker = arr => arr[Math.floor(Math.random() * arr.length)];
 
-// passing Pokemon's array and Skills array to the function each pokemon will learn the skills of its type.
 pokemonGym = (participants, skills) => skills.forEach(skill => participants.forEach(pokemon => { if(skill.type === pokemon.type) { pokemon.learnAttackSkill(skill) }}));
 
 
-startPokemonBattle = opponents => {
+startPokemonBattle = participants => {
+    if (participants.length === 0) {
+        return
+    }
+    
+    let opponents = [participants.shift(), participants.pop()]
+    
     let whoStarts = randomPicker(opponents);
-    let whoNotStarts = opponents.filter(pokemon => pokemon !== whoStarts)
-    whoNotStarts = whoNotStarts[0]
-    console.log('Starting the battle.......\n+ + + + + FIGHT! + + + + +\n');
+    let whoNotStarts = opponents[0] !== whoStarts ? opponents[0] : opponents[1];
+    console.log(`\n\n* * *  Let's see which will be the next battle  * * *\n* * * * * *  LET'S GET READY TO RUMBLE!!  * * * * * *\n\n=-=-=-=-=-=-=  ${whoStarts.name}  Vs  ${whoNotStarts.name}  =-=-=-=-=-=-= \n\n`);
+    console.log('\nStarting the battle.......\n+ + + + + FIGHT! + + + + +\n');
+    
     for (let i = 0; whoStarts.health > 0 && whoNotStarts.health > 0; i++) {
         whoStarts.attack(whoNotStarts)
-        whoNotStarts.attack(whoStarts)
+        whoNotStarts.attack(whoStarts)        
     }
     if (whoStarts.health <= 0) {
         const earnedExp = whoNotStarts.expPoints
         whoNotStarts.addExp(earnedExp)
+        whoNotStarts.showStatus()
+        // console.log(`\n${whoNotStarts.name} advances to the next round!\n`);
         whoNotStarts.recover()
-        //winners.push(whoNotStarts)
-        return whoNotStarts
+        winners.push(whoNotStarts)
+        return startPokemonBattle(participants)
     } else if (whoNotStarts.health <= 0) {
         const earnedExp = whoStarts.expPoints
         whoStarts.addExp(earnedExp)
+        whoStarts.showStatus()
+        // console.log(`\n${whoStarts.name} advances to the next round!\n`);
         whoStarts.recover()
-        //winners.push(whoStarts)
-        return whoStarts
+        winners.push(whoStarts)
+        return startPokemonBattle(participants)
     }
-
 }
+
+
+startTournament = () => {
+    let participants = [];
+    
+    // const howManyPokemon = prompt('How many Pokemon do you want to participate in the tournament (2-4-8-16)? ')
+    const howManyPokemon = 8
+    if (howManyPokemon % 2 !== 0) {
+        howManyPokemon += 1
+    }
+    console.log('selecting the participants...\n');
+    for (let i = 1; i <= howManyPokemon; i++) {
+        let participant = randomPicker(listOfPokemon)
+        if (!participants.includes(participant)) {
+            console.log(`- Participant ${i}: ${participant.name}`);
+            participants.push(participant)
+        } else {
+            i--;
+        }
+    }
+    console.log('\nThe Pokemon are training and learning new skills to be ready for the tournament.\nThey will be ready in a while...\n\n');
+    pokemonGym(participants, pokemonSkills)
+    console.log('\n\t#####################################################\n\t##\t\t\t\t\t\t   ##\n\t##   WELCOME TO THE POKEMON MASTER CHAMPIONSHIP!   ##\n\t##\t\t\t\t\t\t   ##\n\t#####################################################\n\n');
+    
+    startPokemonBattle(participants)
+    
+    while (winners.length > 1) {
+        let winners2 = [...winners]
+        winners = []
+        switch (winners2.length) {
+            case 8:
+                startPokemonBattle(winners2)
+                break;
+            case 4:
+                startPokemonBattle(winners2)
+                break;
+            case 2:
+                console.log(`\n\t  ############################\n\t  ##\t\t\t    ##\n\t  ##\t   WELCOME TO\t    ##\n\t  ##    THE FINAL BATTLE    ##\n\t  ##\t\t\t    ##\n\t  ############################\n`);
+                startPokemonBattle(winners2)
+        }
+    }  
+    console.log(`\n\t#########################################\n\t#\t\t\t\t\t#\n\t#\t${winners[0].name} is the CHAMPION!\t#\n\t#\t\t\t\t\t#\n\t#########################################`);
+}
+
 
 
 // ---------------Pokemon's instances---------------
@@ -202,23 +258,4 @@ let hydroCannon = new AttackSkill ("hydro cannon", 50, 45, 'water');
 
 
 
-// ================ TEST ================
-// pikachu.learnAttackSkill(thunderBolt);
-// bulbasaur.learnAttackSkill(poisonSeed);
-// pikachu.attack(bulbasaur);
-// bulbasaur.attack(pikachu);
-// pikachu.attack(bulbasaur);
-// bulbasaur.attack(pikachu);
-// pikachu.attack(bulbasaur);
-// bulbasaur.attack(pikachu);
-// pikachu.attack(bulbasaur);
-// bulbasaur.attack(pikachu);
-// pikachu.attack(bulbasaur);
-// bulbasaur.attack(pikachu);
-// pikachu.showStatus();
-// bulbasaur.showStatus();
-// pikachu.recover();
-// bulbasaur.recover();
-// pikachu.showStatus();
-// bulbasaur.showStatus();
-// pokemonGym([pikachu, bulbasaur, charmander], [chargeBeam, thunderPunch, razorLeaf, solarBeam, firePunch, fireBlast, waterGun, hydroCannon])
+// startTournament()
