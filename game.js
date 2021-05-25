@@ -53,7 +53,7 @@ class Pokemon {
     // method to teach the pokemon a new skill
     learnAttackSkill(skill) {
         this.skills.push(skill)
-        console.log(`${this.name} has learned ${skill.name}!`);
+        // console.log(`${this.name} has learned ${skill.name}!`);
     }
 
     // method to be used by the pokemon to perform an attack
@@ -67,11 +67,11 @@ class Pokemon {
                 if (randomPicker(possibilityToAttack)) {
                     // increases, decreases or does't the damage caused by his attack depending on his and his opponent's type.
                     if ((this.type === 'water' && target.type === 'fire') || (this.type === 'electric' && target.type === 'water') || (this.type === 'fire' && target.type === 'grass') || (this.type === 'grass' && target.type === 'water')) {
-                        target.health -= skill.damage * 1.4;
-                        this.magic -= skill.magic * 0.6;
+                        target.health -= Math.round(skill.damage * 1.4);
+                        this.magic -= Math.round(skill.magic * 0.6);
                     } else if (((this.type === 'fire' && target.type === 'water') || (this.type === 'water' && target.type === 'electric') || (this.type === 'grass' && target.type === 'fire') || (this.type === 'water' && target.type === 'grass'))) {
-                        target.health -= skill.damage * 0.6;
-                        this.magic -= skill.magic * 1.4;
+                        target.health -= Math.round(skill.damage * 0.6);
+                        this.magic -= Math.round(skill.magic * 1.4);
                     } else {
                         target.health -= skill.damage;
                         this.magic -= skill.magic;
@@ -147,7 +147,7 @@ startPokemonBattle = participants => {
     // Choosing randomly who will be the first to attack
     let whoStarts = randomPicker(opponents);
     let whoNotStarts = opponents[0] !== whoStarts ? opponents[0] : opponents[1];
-    console.log(`\n\n\t * * *  Let's see which will be the next battle  * * *\n\t * * * * * *  LET'S GET READY TO RUMBLE!!  * * * * * *\n\n\t =-=-=-=-=-=-=-=  ${whoStarts.name}  Vs  ${whoNotStarts.name}  =-=-=-=-=-=-=-= \n\n`);
+    console.log(`\n\n\t * * *  Let's see which will be the next battle  * * *\n\t * * * * * *  LET'S GET READY TO RUMBLE!!  * * * * * *\n\n\t=-=-=-=-=-=-=-=  ${whoStarts.name}  Vs  ${whoNotStarts.name}  =-=-=-=-=-=-=-= \n\n`);
     console.log('\nStarting the battle.......\n+ + + + + FIGHT! + + + + +\n');
     // As long as both pokemon have more than 0 health points continues the iteration for them to perform their attacks
     for (let i = 0; whoStarts.health > 0 && whoNotStarts.health > 0; i++) {
@@ -181,12 +181,11 @@ startPokemonBattle = participants => {
 // function that initialises the tournament
 startTournament = () => {
     let participants = [];
+    // The prompt-sync module is a function that creates prompting functions, so you need to call prompt-sync in order to get your actual prompting function.
+    const prompt = require('prompt-sync')();
+    const howManyPokemon = Number(prompt('How many Pokemon do you want to participate in the tournament [2-4-8-16]? '));
+    // const howManyPokemon = 16
     
-    // const howManyPokemon = prompt('How many Pokemon do you want to participate in the tournament (2-4-8-16)? ')
-    const howManyPokemon = 16
-    if (howManyPokemon % 2 !== 0) {
-        howManyPokemon += 1
-    }
     console.log('selecting the participants...\n');
     // chooses randomly he participants of the tournament according to the desired number of them
     for (let i = 1; i <= howManyPokemon; i++) {
