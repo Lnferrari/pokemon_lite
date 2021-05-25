@@ -84,7 +84,7 @@ class Pokemon {
                     console.log(`${this.name}'s attack missed!\n`);
                 }  
             } else {
-                console.log(`${this.name} doesn't have enough energy to perform ${skill}!`);
+                console.log(`${this.name} doesn't have enough energy to perform ${skill.name}!`);
             }
         }
     }
@@ -129,6 +129,31 @@ randomPicker = arr => arr[Math.floor(Math.random() * arr.length)];
 // passing Pokemon's array and Skills array to the function each pokemon will learn the skills of its type.
 pokemonGym = (participants, skills) => skills.forEach(skill => participants.forEach(pokemon => { if(skill.type === pokemon.type) { pokemon.learnAttackSkill(skill) }}));
 
+
+startPokemonBattle = opponents => {
+    let whoStarts = randomPicker(opponents);
+    let whoNotStarts = opponents.filter(pokemon => pokemon !== whoStarts)
+    whoNotStarts = whoNotStarts[0]
+    console.log('Starting the battle.......\n+ + + + + FIGHT! + + + + +\n');
+    for (let i = 0; whoStarts.health > 0 && whoNotStarts.health > 0; i++) {
+        whoStarts.attack(whoNotStarts)
+        whoNotStarts.attack(whoStarts)
+    }
+    if (whoStarts.health <= 0) {
+        const earnedExp = whoNotStarts.expPoints
+        whoNotStarts.addExp(earnedExp)
+        whoNotStarts.recover()
+        //winners.push(whoNotStarts)
+        return whoNotStarts
+    } else if (whoNotStarts.health <= 0) {
+        const earnedExp = whoStarts.expPoints
+        whoStarts.addExp(earnedExp)
+        whoStarts.recover()
+        //winners.push(whoStarts)
+        return whoStarts
+    }
+
+}
 
 
 // ---------------Pokemon's instances---------------
